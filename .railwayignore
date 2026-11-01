@@ -1,0 +1,10 @@
+.git/
+.openai/
+node_modules/
+.cache/
+.sites-runtime/
+.env*
+reference-images/
+tests/
+.github/
+*.md

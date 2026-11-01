@@ -1,0 +1,11 @@
+node_modules/
+.cache/
+.env*
+.sites-runtime/
+.openai/
+reference-images/
+dist/assets/*.jpg
+dist/vendor/
+dist/models/mobileclip/
+dist/models/binaries.json
+.DS_Store

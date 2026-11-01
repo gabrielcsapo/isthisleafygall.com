@@ -1,0 +1,11 @@
+**
+!Dockerfile
+!server.mjs
+!package.json
+!package-lock.json
+!scripts/
+!scripts/**
+!data/
+!data/**
+!dist/
+!dist/**

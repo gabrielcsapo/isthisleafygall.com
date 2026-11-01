@@ -1,0 +1,72 @@
+name: Share a reference photo
+description: Help improve the checker with leafy gall, normal growth, crown gall, or an uncertain example.
+title: "[Reference photo]: "
+labels: [reference-submission, needs-review]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping. **This issue and any photos you attach are public.**
+        Add only photos you own. Remove location metadata, faces, addresses, and personal details first.
+        Submissions are reviewed manually; posting a photo does not add it to the checker or confirm a diagnosis.
+  - type: dropdown
+    id: appearance
+    attributes:
+      label: What do you think this shows?
+      options:
+        - Unsure — please review
+        - Suspected leafy gall
+        - Normal-looking shoots or eyes
+        - Suspected crown gall
+        - Another condition or lookalike
+    validations:
+      required: true
+  - type: textarea
+    id: photos
+    attributes:
+      label: Photos
+      description: Drag your original JPG, PNG, or WebP files here. Include the crown close-up, the whole clump, and another angle if possible. Keep related photos together.
+      placeholder: Attach your photos here.
+    validations:
+      required: true
+  - type: dropdown
+    id: confirmation
+    attributes:
+      label: How was the identification established?
+      options:
+        - Not confirmed
+        - My own visual assessment
+        - Experienced grower or specialist assessment
+        - Plant diagnostic laboratory report
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and follow-up
+      description: Tell us who reviewed it, what they concluded, or what later growth showed. A redacted lab report is helpful when available. Do not include private contact details.
+  - type: textarea
+    id: context
+    attributes:
+      label: Plant and growing context
+      description: Include plant type, cultivar if known, growth stage, approximate date, and whether shoots were cut, stored in darkness, or treated with growth hormones. Country or broad region is optional; no exact location needed.
+    validations:
+      required: true
+  - type: input
+    id: credit
+    attributes:
+      label: Photo credit
+      description: The public name or handle you want used. No email address needed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: permission
+    attributes:
+      label: Permission and public sharing
+      options:
+        - label: I took these photos or hold the rights to license them. They are not copied from social media or another website.
+          required: true
+        - label: I understand this is public and grant use of these photos and my descriptions under CC BY 4.0, including review, image preprocessing, on-device reference matching, and redistribution with attribution.
+          required: true
+        - label: I understand my suggested identification is unverified until reviewed, and a visual comparison cannot confirm a bacterial infection.
+          required: true

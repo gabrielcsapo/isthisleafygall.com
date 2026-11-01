@@ -1,0 +1,17 @@
+{
+  "name": "isthisleafygall",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@huggingface/transformers": "4.3.2"
+  },
+  "scripts": {
+    "prepare-model": "node scripts/prepare-model.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "assets": "node scripts/fetch-references.mjs",
+    "refs:validate": "node scripts/validate-references.mjs",
+    "refs:evaluate": "node scripts/evaluate-references.mjs",
+    "prepare-runtime": "node scripts/prepare-runtime.mjs",
+    "start": "node server.mjs"
+  }
+}
