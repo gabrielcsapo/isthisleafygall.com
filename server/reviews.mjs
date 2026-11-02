@@ -54,16 +54,20 @@ export function createReviewService({ storage, sendNotification, now = () => new
       const pendingKey = `pending/${id}.json`;
       const record = await storage.getJson(pendingKey);
       if (!record) return;
+      if(await storage.getJson(`deleted/${id}.json`)){await storage.delete(pendingKey);return;}
       const delivered = await storage.getJson(`submissions/${id}.json`);
       if (delivered?.notification?.status === 'sent') { await storage.delete(pendingKey); return; }
       if (record.notification.nextAttemptAt && new Date(record.notification.nextAttemptAt) > now()) return;
       try {
         const photo = await storage.getBytes(record.photo.key);
         await sendNotification(record, photo);
+        if(await storage.getJson(`deleted/${id}.json`)){await storage.delete(pendingKey);return;}
         record.notification = { status:'sent', sentAt:now().toISOString(), attempts:record.notification.attempts + 1 };
         await storage.putJson(`submissions/${id}.json`,record);
+        if(await storage.getJson(`deleted/${id}.json`))await storage.delete(`submissions/${id}.json`);
         await storage.delete(pendingKey);
       } catch {
+        if(await storage.getJson(`deleted/${id}.json`)){await storage.delete(pendingKey);return;}
         // The durable pending record survives deploys and provider outages.
         record.notification.attempts++;
         record.notification.nextAttemptAt = new Date(now().getTime() + Math.min(3600,60 * 2 ** Math.min(record.notification.attempts - 1,6)) * 1000).toISOString();
@@ -78,6 +82,7 @@ export function createReviewService({ storage, sendNotification, now = () => new
     find,
     async submit(fields, bytes) {
       const values = validateReview(fields);
+      if(await storage.getJson(`deleted/${values.id}.json`))throw new ReviewError(410,'This submission was deleted. Reopen the form to make a new request.');
       const photo = await normalizeReviewPhoto(bytes);
       const sha256 = createHash('sha256').update(photo).digest('hex');
       const fingerprint = createHash('sha256').update(JSON.stringify({...values,sha256})).digest('hex');

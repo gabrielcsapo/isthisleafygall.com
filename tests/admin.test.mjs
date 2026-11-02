@@ -8,7 +8,7 @@ import { createAdminService,evaluateReferences } from '../server/admin-service.m
 import { createAdminHandler,createReplySender } from '../server/admin-http.mjs';
 import { CONSENT_VERSION,REVIEW_PERMISSION } from '../server/reviews.mjs';
 const base=JSON.parse(await readFile(new URL('../dist/models/references.json',import.meta.url)));
-function memoryStorage(){const files=new Map(),versions=new Map();return {files,async getJson(key){return files.has(key)?structuredClone(files.get(key)):null;},async putJson(key,value){files.set(key,structuredClone(value));versions.set(key,(versions.get(key)||0)+1);},async getJsonVersion(key){return {value:await this.getJson(key),etag:versions.has(key)?String(versions.get(key)):null};},async putJsonVersion(key,value,etag){if((versions.has(key)?String(versions.get(key)):null)!==etag){const error=new Error('conflict');error.status=409;throw error;}await this.putJson(key,value);},async list(prefix){return [...files.keys()].filter(x=>x.startsWith(prefix));},async getBytes(){return Buffer.from('private-image');}};}
+function memoryStorage(){const files=new Map(),versions=new Map();return {files,async getJson(key){return files.has(key)?structuredClone(files.get(key)):null;},async putJson(key,value){files.set(key,structuredClone(value));versions.set(key,(versions.get(key)||0)+1);},async getJsonVersion(key){return {value:await this.getJson(key),etag:versions.has(key)?String(versions.get(key)):null};},async putJsonVersion(key,value,etag){if((versions.has(key)?String(versions.get(key)):null)!==etag){const error=new Error('conflict');error.status=409;throw error;}await this.putJson(key,value);},async delete(key){files.delete(key);versions.delete(key);},async list(prefix){return [...files.keys()].filter(x=>x.startsWith(prefix));},async getBytes(){return Buffer.from('private-image');}};}
 async function setup(options={}){const storage=memoryStorage(),id=randomUUID();await storage.putJson(`submissions/${id}.json`,{id,createdAt:new Date().toISOString(),email:'private@example.com',notes:'Private visitor notes',modelCategory:'leafy',photo:{key:`photos/${id}.jpg`,sha256:randomUUID()},consent:{version:CONSENT_VERSION,trainingAllowed:options.allowed!==false,reviewPermission:REVIEW_PERMISSION},review:{category:'unreviewed'}});const service=createAdminService({storage,base,...options});return {service,storage,id};}
 async function save(service,id,category='leafy',group='private-plant-name'){const {revision}=await service.list();return service.save(id,{revision,category,group,notes:'Private review notes'},'owner');}
 async function approve(service,id,role='reference'){const {revision,items}=await service.list();return service.approve(id,{revision,role,photoSha256:items.find(x=>x.id===id).photoSha256,modelRevision:base.revision,embedding:base.references.find(x=>x.category==='leafy').embedding},'owner');}
@@ -55,8 +55,42 @@ test('admin HTTP blocks anonymous image reads and CSRF, while reference index st
   assert.equal((await fetch(`${origin}/api/admin/reviews/${id}/photo`)).status,401);const anon=await(await fetch(`${origin}/api/admin/session`)).json();assert.deepEqual(anon,{enabled:true,authenticated:false});assert.equal((await fetch(`${origin}/reference-index.json`)).status,200);
   const forbidden=await fetch(`${origin}/api/admin/reviews/${id}`,{method:'POST',headers:{Authorization:'owner','Content-Type':'application/json',Origin:'https://evil.test','X-CSRF-Token':'token'},body:'{}'});assert.equal(forbidden.status,403);
   const queue=await fetch(`${origin}/api/admin/reviews`,{headers:{Authorization:'owner'}});assert.match(queue.headers.get('cache-control'),/no-store/);assert.equal((await queue.json()).items.length,1);
+  const deletePath=`${origin}/api/admin/reviews/${id}/delete`,headers={Authorization:'owner','Content-Type':'application/json',Origin:'https://isthisleafygall.com','X-CSRF-Token':'token'};
+  assert.equal((await fetch(deletePath,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})).status,401);
+  assert.equal((await fetch(deletePath,{method:'POST',headers,body:'{}'})).status,400);
+  assert.equal((await fetch(deletePath,{method:'POST',headers,body:JSON.stringify({revision:0,confirm:'delete-photo'})})).status,200);
+  assert.equal((await fetch(`${origin}/api/admin/reviews/${id}/photo`,{headers:{Authorization:'owner'}})).status,404);
 });
 test('dashboard has no analytics and replies always use the submission recipient',async()=>{
   const html=await readFile(new URL('../dist/admin/index.html',import.meta.url),'utf8'),js=await readFile(new URL('../dist/admin/admin.js',import.meta.url),'utf8');assert.doesNotMatch(html+js,/posthog|analytics\.js|innerHTML|localStorage/);let sent;
   const sender=createReplySender({RESEND_API_KEY:'server-secret',REVIEW_REPLY_FROM_EMAIL:'reviews@example.com',REVIEW_NOTIFY_TO:'owner@example.com'},async(url,options)=>{sent=JSON.parse(options.body);return new Response('{}');});await sender({id:randomUUID(),email:'visitor@example.com'},{id:randomUUID(),body:'Human review'});assert.deepEqual(sent.to,['visitor@example.com']);assert.equal(sent.reply_to,'owner@example.com');assert.equal(createReplySender({RESEND_API_KEY:'x',REVIEW_REPLY_FROM_EMAIL:'onboarding@resend.dev'}),null);
+});
+
+
+test('deletion needs confirmation, removes private objects and prevents restoration',async()=>{
+  const {service,storage,id}=await setup({sendReply:async()=>{throw new Error('offline');}});
+  storage.files.set(`photos/${id}.jpg`,Buffer.from('private-photo'));
+  await save(service,id);await approve(service,id);
+  const draft=await service.prepare('owner');await service.publish(draft.version,'owner');
+  await service.reply(id,{requestId:randomUUID(),body:'Private pending reply text.'},'owner');
+  const revision=(await service.list()).revision;
+  await assert.rejects(service.erase(id,{revision},'owner'),/Confirm permanent/);
+  await assert.rejects(service.erase(id,{revision:revision-1,confirm:'delete-photo'},'owner'),/queue changed/);
+  assert.equal((await service.erase(id,{revision,confirm:'delete-photo'},'owner')).status,'deleted');
+  for(const key of [`photos/${id}.jpg`,`pending/${id}.json`,`submissions/${id}.json`])assert.equal(storage.files.has(key),false);
+  assert.equal((await service.list()).items.length,0);await assert.rejects(service.photo(id),/not found/);
+  assert.equal((await service.publicDatabase()).references.length,base.references.length);
+  const state=await storage.getJson('admin/state.json');assert.equal(state.reviews[id],undefined);assert.equal(state.deletions[id].status,'deleted');
+  assert.doesNotMatch(JSON.stringify(state),/private@example|Private pending reply|Private review notes/);
+  assert.ok(await storage.getJson(`deleted/${id}.json`));
+  await assert.rejects(service.rollback(draft.version,'owner'),/approval changed/);
+  await service.retryReplies();await service.retryDeletes();
+  assert.equal((await service.erase(id,{confirm:'delete-photo'},'owner')).status,'deleted');
+});
+test('failed storage deletion stays hidden and resumes with a new service instance',async()=>{
+  const {service,storage,id}=await setup();let fail=true;const remove=storage.delete.bind(storage);storage.delete=async key=>{if(fail)throw new Error('storage offline');await remove(key);};
+  const result=await service.erase(id,{revision:0,confirm:'delete-photo'},'owner');assert.equal(result.status,'pending');
+  assert.equal((await service.list()).items.length,0);await assert.rejects(service.photo(id),/not found/);
+  fail=false;const restarted=createAdminService({storage,base});await restarted.retryDeletes();
+  assert.equal(storage.files.has(`submissions/${id}.json`),false);assert.equal((await storage.getJson('admin/state.json')).deletions[id].status,'deleted');
 });

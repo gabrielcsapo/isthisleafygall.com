@@ -83,3 +83,14 @@ test('review UI is voluntary, training is unchecked, and GitHub remains only a s
   assert.equal(safeSupportUrl('https://ko-fi.com/real-page'),'https://ko-fi.com/real-page');
   for(const url of ['javascript:alert(1)','https://ko-fi.com.evil.test/page','https://ko-fi.com/','https://ko-fi.com/name?token=secret'])assert.equal(safeSupportUrl(url),null);
 });
+
+
+test('deleted submissions cannot be recreated by upload retries or in-flight notification delivery',async()=>{
+  const storage=memoryStore();let release,started;
+  const waiting=new Promise(resolve=>release=resolve),sending=new Promise(resolve=>started=resolve);
+  const service=createReviewService({storage,sendNotification:async()=>{started();await waiting;}});
+  const data=fields(),image=await photo();await service.submit(data,image);await sending;
+  await storage.putJson(`deleted/${data.requestId}.json`,{deletedAt:new Date().toISOString()});release();await service.deliver(data.requestId);
+  assert.equal(await storage.getJson(`pending/${data.requestId}.json`),null);assert.equal(await storage.getJson(`submissions/${data.requestId}.json`),null);
+  await assert.rejects(service.submit(data,image),error=>error.status===410);
+});

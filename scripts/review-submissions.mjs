@@ -13,7 +13,7 @@ async function records() {
   const state=await storage.getJson('admin/state.json');
   const results=new Map();
   for(const prefix of ['pending/','submissions/'])for(const key of await storage.list(prefix,100000))if(key.endsWith('.json')) {
-    const record=await storage.getJson(key);if(record){const review=state?.reviews?.[record.id];if(review?.reviewedAt)record.review={category:review.category,reviewedAt:review.reviewedAt,evidence:'human_visual_review'};if(review?.trainingWithdrawn)record.consent.trainingAllowed=false;results.set(record.id,{record,key});}
+    const record=await storage.getJson(key);if(record && !state?.deletions?.[record.id]){const review=state?.reviews?.[record.id];if(review?.reviewedAt)record.review={category:review.category,reviewedAt:review.reviewedAt,evidence:'human_visual_review'};if(review?.trainingWithdrawn)record.consent.trainingAllowed=false;results.set(record.id,{record,key});}
   }
   return [...results.values()].sort((a,b)=>a.record.createdAt.localeCompare(b.record.createdAt));
 }
@@ -36,9 +36,8 @@ if(command==='list') {
     await storage.putJson(item.key,item.record);console.log(`Excluded ${id} from future training exports.`);
   } else {
     if(confirmation!=='--confirm')throw new Error('Deletion is permanent. Use delete <id> --confirm only for an authorized deletion request.');
-    await admin.forget(id);
-    await storage.delete(item.record.photo.key);await storage.delete(`pending/${id}.json`);await storage.delete(`submissions/${id}.json`);
-    console.log(`Deleted private submission ${id}. Remove it from prior exports too.`);
+    const result=await admin.erase(id,{revision:(await admin.list()).revision,confirm:'delete-photo'},'owner-cli');
+    console.log(`${result.status==='deleted'?'Deleted':'Queued deletion of'} private submission ${id}. Remove it from prior exports and inbox emails too.`);
   }
 } else if(command==='export') {
   const directory=resolve(args[0] || '.cache/reviewed-training');await mkdir(directory,{recursive:true});

@@ -25,7 +25,7 @@ export function createAdminHandler(env=process.env,dependencies={}) {
   const service=dependencies.service || (config?Promise.resolve(base).then(base=>createAdminService({storage:createReviewStorage(config),base,sendReply})):null);
   const ready=Boolean(service && auth.enabled),replyReady=Boolean(sendReply);
   function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','Vary':'Cookie'});res.end(JSON.stringify(value));}
-  const retry=async()=>{try{await(await service)?.retryReplies();}catch{console.error('[Photo review] Reply queue will retry.');}};
+  const retry=async()=>{try{const admin=await service;await admin?.retryDeletes?.();await admin?.retryReplies();}catch{console.error('[Photo review] Maintenance queue will retry.');}};
   const timer=service?setInterval(retry,60000):null;timer?.unref();if(service)void retry();
   return {close:()=>clearInterval(timer),
     async handle(req,res,url){
@@ -43,9 +43,9 @@ export function createAdminHandler(env=process.env,dependencies={}) {
         if(req.method!=='GET' && !auth.mutateAllowed(req,user)){json(res,403,{error:'Refresh the dashboard before saving changes.'});return true;}
         const admin=await service;
         if(url.pathname==='/api/admin/reviews' && req.method==='GET'){json(res,200,await admin.list());return true;}
-        const match=url.pathname.match(/^\/api\/admin\/reviews\/([a-f0-9-]+)(?:\/(photo|approve|exclude|reply))?$/);
+        const match=url.pathname.match(/^\/api\/admin\/reviews\/([a-f0-9-]+)(?:\/(photo|approve|exclude|reply|delete))?$/);
         if(match && match[2]==='photo' && req.method==='GET') {const image=await admin.photo(match[1]);res.writeHead(200,{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','Vary':'Cookie'});res.end(image);return true;}
-        if(match && req.method==='POST') {const input=await readAdminJson(req);const fn={approve:'approve',exclude:'exclude',reply:'reply'}[match[2]] || (!match[2]?'save':null);if(!fn)throw new ReviewError(404,'Not found.');json(res,200,(await admin[fn](match[1],input,user.login)) || {ok:true});return true;}
+        if(match && req.method==='POST') {const input=await readAdminJson(req);const fn={approve:'approve',exclude:'exclude',reply:'reply',delete:'erase'}[match[2]] || (!match[2]?'save':null);if(!fn)throw new ReviewError(404,'Not found.');json(res,200,(await admin[fn](match[1],input,user.login)) || {ok:true});return true;}
         if(req.method==='POST' && ['/api/admin/references/prepare','/api/admin/references/publish','/api/admin/references/rollback'].includes(url.pathname)) {const input=await readAdminJson(req),action=url.pathname.split('/').at(-1);const result=action==='prepare'?await admin.prepare(user.login):await admin[action](input.version,user.login);json(res,200,result);return true;}
         json(res,404,{error:'Not found.'});return true;
       }catch(error){req.resume();if(!error.status)console.error('[Photo review] Admin operation temporarily unavailable.');json(res,error.status || 503,{error:error.status?error.message:'The operation could not finish. Refresh and try again.'});return true;}
