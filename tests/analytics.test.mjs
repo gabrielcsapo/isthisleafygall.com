@@ -47,3 +47,21 @@ test('runtime configuration exposes only a public project token and rejects priv
     child.kill();
   }
 });
+
+test('browser privacy preferences prevent even loading the analytics SDK or configuration', async () => {
+  const originals = Object.fromEntries(['window','navigator','fetch'].map(key => [key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+  let requests = 0;
+  try {
+    Object.defineProperty(globalThis,'window',{value:{},configurable:true});
+    Object.defineProperty(globalThis,'fetch',{value:()=>{requests++;throw new Error('Analytics request should be skipped');},configurable:true});
+    for(const [index,preference] of [{doNotTrack:'1'},{globalPrivacyControl:true}].entries()) {
+      Object.defineProperty(globalThis,'navigator',{value:preference,configurable:true});
+      await import(`../dist/analytics.js?privacy=${index}`);
+    }
+    assert.equal(requests,0);
+  } finally {
+    for(const [key,descriptor] of Object.entries(originals)) {
+      if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];
+    }
+  }
+});

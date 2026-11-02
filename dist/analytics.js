@@ -19,7 +19,7 @@ export function cleanEvent(event, origin, referrer) {
   let referringDomain = '';
   try { referringDomain = new URL(referrer).hostname; } catch {}
   // This is a one-page site. Never send URL queries, fragments or referrer paths.
-  Object.assign(properties, custom, { site: 'isthisleafygall.com', $current_url: `${origin}/`, $host: new URL(origin).host, $pathname: '/', $referrer: referringDomain ? `https://${referringDomain}/` : '', $referring_domain: referringDomain, $process_person_profile: false });
+  Object.assign(properties, custom, { site: 'isthisleafygall.com', $current_url: `${origin}/`, $host: new URL(origin).host, $pathname: '/', $referrer: referringDomain ? `https://${referringDomain}/` : '$direct', $referring_domain: referringDomain || '$direct', $process_person_profile: false });
   return { event: event.event, properties, ...(event.uuid ? {uuid:event.uuid} : {}), ...(event.timestamp ? {timestamp:event.timestamp} : {}) };
 }
 export function analyticsOptions(apiHost, origin, referrer) {
