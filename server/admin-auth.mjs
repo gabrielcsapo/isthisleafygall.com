@@ -21,6 +21,7 @@ export function createAdminAuth(env=process.env, fetcher=fetch, now=()=>Date.now
       if(!['/auth/github','/auth/github/callback','/auth/logout'].includes(url.pathname))return false;
       res.setHeader('Cache-Control','no-store');
       if(!enabled){res.writeHead(503);res.end('Admin sign-in is not configured.');return true;}
+      if(req.method==='GET' && req.headers.host && req.headers.host!==new URL(origin).host){redirect(res,`${origin}${url.pathname}${url.search}`);return true;}
       if(url.pathname==='/auth/logout') {
         const user=session(req);if(req.method!=='POST' || !mutateAllowed(req,user)){res.writeHead(403);res.end();return true;}
         res.writeHead(200,{'Content-Type':'application/json','Set-Cookie':cookie(sessionName,'',0)});res.end('{}');return true;

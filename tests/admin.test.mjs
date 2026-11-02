@@ -16,6 +16,7 @@ function response(){return {headers:{},writeHead(status,headers={}){this.status=
 test('GitHub sign-in uses PKCE, bound state and an expiring owner-only session',async()=>{
   const env={GITHUB_CLIENT_ID:'public-client',GITHUB_CLIENT_SECRET:'s'.repeat(40),ADMIN_GITHUB_ID:'1854811'},calls=[];let profileId=1854811,time=0;
   const auth=createAdminAuth(env,async(url,options)=>{calls.push({url,options});return new Response(JSON.stringify(url.includes('access_token')?{access_token:'not-persisted',refresh_token:'also-not-persisted'}:{id:profileId,login:'gabrielcsapo'}));},()=>time);
+  const canonical=response();await auth.handle({method:'GET',headers:{host:'www.isthisleafygall.com'}},canonical,new URL('https://www.isthisleafygall.com/auth/github'));assert.equal(canonical.headers.Location,'https://isthisleafygall.com/auth/github');assert.equal(canonical.headers['Set-Cookie'],undefined);
   const start=response();await auth.handle({method:'GET',headers:{}},start,new URL('https://isthisleafygall.com/auth/github?review='+randomUUID()));
   const location=new URL(start.headers.Location),pending=start.headers['Set-Cookie'][0].split(';')[0];assert.equal(location.searchParams.get('scope'),'');assert.equal(location.searchParams.get('code_challenge_method'),'S256');assert.match(pending,/HttpOnly|__Host-/);
   const bad=response();await auth.handle({method:'GET',headers:{cookie:pending}},bad,new URL('https://isthisleafygall.com/auth/github/callback?code=x&state=wrong'));assert.match(bad.headers.Location,/failed/);assert.equal(calls.length,0);
