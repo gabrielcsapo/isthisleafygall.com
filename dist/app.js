@@ -1,4 +1,4 @@
-import { resultCopy } from './inference.js';
+import { getResultCopy } from './inference.js';
 const siteUrl = new URL('/', window.location.href).href;
 const $ = selector => document.querySelector(selector);
 let photo, worker, activeRequest = 0, busy = false, lastResult, toastTimer;
@@ -74,11 +74,10 @@ window.addEventListener('drop', event => event.preventDefault());
 window.addEventListener('paste', event => { if (document.querySelector('dialog[open]') || busy) return; const file = [...(event.clipboardData?.files || [])].find(item => item.type.startsWith('image/')); if (file) selectPhoto(file); });
 function renderResult(result) {
   lastResult = result;
-  const copy = resultCopy[result.category] || resultCopy.unclear;
+  const copy = getResultCopy(result);
   $('#result-label').textContent = copy.label; $('#result-label').className = `result-label ${copy.tone}`;
   $('#result-title').textContent = copy.title; $('#result-description').textContent = copy.description;
   $('#result-action').textContent = copy.action;
-  if (result.reason === 'subject') $('#result-description').textContent = 'The checker couldn’t recognise a useful close-up of a dahlia crown in this photo. Try showing the base of the plant and its shoots.';
   showState('result'); $('#result-title').focus();
 }
 function onWorkerMessage(event) {
@@ -108,5 +107,5 @@ async function inspect() {
 }
 $('#inspect-photo').addEventListener('click', inspect);
 $('#retry-inspection').addEventListener('click', inspect);
-$('#copy-result').addEventListener('click', () => { if (!lastResult) return; const copy = resultCopy[lastResult.category] || resultCopy.unclear; copyText(`${copy.title} ${copy.description} ${copy.action}\n\nExperimental visual comparison, not a confirmed diagnosis. ${siteUrl}`, 'Result copied.'); });
+$('#copy-result').addEventListener('click', () => { if (!lastResult) return; const copy = getResultCopy(lastResult); copyText(`${copy.title} ${copy.description} ${copy.action}\n\nExperimental visual comparison, not a confirmed diagnosis. ${siteUrl}`, 'Result copied.'); });
 window.addEventListener('pagehide', clearPhoto);

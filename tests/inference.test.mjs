@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { compareEmbedding, dot, resultCopy } from '../dist/inference.js';
+import { compareEmbedding, dot, resultCopy, getResultCopy } from '../dist/inference.js';
 import { configureLocalModel } from '../dist/local-model.js';
 const db = JSON.parse(await readFile(new URL('../dist/models/references.json', import.meta.url)));
 test('browser worker defaults are changed to permit only this site’s local model', () => {
@@ -28,7 +28,14 @@ test('an unrelated vector abstains', () => {
 test('close category scores abstain rather than inventing certainty', () => {
   const vector = db.references.find(item => item.category === 'normal').embedding;
   const ambiguous = { ...db, references: ['normal', 'leafy', 'crown'].map(category => ({ category, embedding: vector })) };
-  assert.equal(compareEmbedding(vector, ambiguous).category, 'unclear');
+  const result = compareEmbedding(vector, ambiguous);
+  assert.equal(result.category, 'unclear');
+  assert.equal(result.reason, 'mixed-matches');
+  assert.equal(result.candidates.length, 2);
+  const copy = getResultCopy(result);
+  assert.match(copy.title, /mixed/);
+  for (const category of result.candidates) assert.match(copy.description, new RegExp(category === 'normal' ? 'normal growth' : `${category} gall`));
+  assert.doesNotMatch(copy.action, /sharp|well-lit/);
 });
 test('invalid image features fail explicitly', () => {
   assert.throws(() => compareEmbedding([NaN], db), /Invalid image features/);
