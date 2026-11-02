@@ -1,31 +1,25 @@
 # Help improve Is this leafy gall?
 
-We need useful examples of **normal growth as well as suspected disease**. A checker trained only on dramatic diseased plants will make unnecessary false alarms.
+Send photos through the private review form on https://isthisleafygall.com. GitHub remains public for source code, bug reports and code contributions; do not post private review photos or email addresses in issues.
 
-[Submit a reference photo](https://github.com/gabrielcsapo/isthisleafygall.com/issues/new?template=reference-photo.yml) or [report a bug](https://github.com/gabrielcsapo/isthisleafygall.com/issues/new?template=bug-report.yml).
+## Review requests
 
-## Photo submissions
+Anyone can submit a photo for a second look, whether the automatic checker finds a match or not. The form asks for an email so the site owner can reply. Photos and contact details are stored privately in Railway and delivered to the review inbox using Resend. Embedded image metadata is removed. There is no account or payment requirement.
 
-Issues and attachments are public. Submit only photos you own, remove location metadata, and keep faces, addresses, plant-supplier disputes, and personal information out of the issue. The inspection page never submits a photo automatically.
+The required permission covers ownership/sharing rights and contact about the review. The separate optional training checkbox is unchecked by default. Declining training permission does not prevent review. This grants permission to improve the checker; it does not publicly relicense the photo, and email addresses remain private. The consent wording version and timestamp are recorded with each submission.
 
-Useful submissions include a sharp crown close-up, a view of the full clump, another angle, the growth stage, and follow-up over time. Keep multiple views of the same plant together. White shoots, multiple eyes, or growth after taking cuttings can be normal; include those examples too.
+## Review before use
 
-Tell us how the identification was established. A suspected diagnosis, an experienced grower's visual opinion, and a laboratory result are different evidence levels. Lab reports must be redacted before posting. Do not treat a model result as a label.
+- Reply to the visitor from the notification email; its Reply-To is the visitor’s address.
+- Keep visual assessment, a suspected condition and laboratory confirmation distinct. A model result is not a ground-truth label.
+- Use the private review command documented in README to record a human category. Record uncertain cases as `unclear`.
+- Only explicitly consented, human-labelled cases can be exported for training/evaluation. The export excludes email addresses and notes. Normal growth and lookalikes are as important as suspected disease.
+- Keep multiple views of the same plant grouped. Exclude disputed or uncertain examples from accepted references, and prevent overlap between reference/training groups and evaluation groups.
+- Check rights and evidence again before making any model update. Publishing raw private photos requires separate explicit permission; do not put uploads or exports in this repository.
+- Use the private commands to honor permission withdrawals and deletion requests. Remove prior exports and inbox attachments as appropriate.
 
-The submission form asks you to license your original photos and descriptions under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) so the project can use them with attribution. This permission applies to your submission, not to photos owned by other people.
+## Code and reference changes
 
-## Review before inclusion
+Preserve on-device automatic inspection and explicit opt-in review uploads. Never include photos, filenames, email addresses, notes or image features in analytics. Original code is MIT licensed; third-party assets and private submissions retain their own rights.
 
-1. Check photo ownership, consent, attribution, and whether evidence supports the proposed label.
-2. Group all views of one specimen. Check for duplicate or near-duplicate images and conflicting labels.
-3. Keep uncertain and disputed cases out of the accepted reference set. Preserve them as unresolved issues.
-4. Record `source_url`, credit, `label_status`, evidence, `group_id`, byte hash, and review date in `data/references.json`. Current published examples are source-checked visual references, not lab-confirmed diagnoses.
-5. Run `npm run assets`, `npm run prepare-model`, `npm run refs:validate`, `npm test`, and `npm run refs:evaluate`.
-6. Review changes against independent examples and compare both false matches and abstentions. Never test a photo against another view of the same specimen and call that independent validation.
-7. Submit a pull request with the changed catalog, generated vectors, evaluation summary, and evidence. A maintainer reviews it before deployment.
-
-The current comparison thresholds are retrieval heuristics, not medical or plant-disease probabilities. Never lower them just to make one submitted example return a desired answer. More references alone do not establish disease-detection accuracy.
-
-## Code changes
-
-Keep the app simple and photo-first. Preserve browser-local inference, accessible controls, visible errors, and privacy. Do not add a photo-upload endpoint or analytics containing image data. Original code is MIT-licensed; third-party models, fonts, and photos retain their own licences.
+For reference changes, update the source catalog and evidence, run `npm run refs:validate`, `npm test`, `npm run refs:evaluate`, and check both false matches and abstentions on independent examples. Do not lower thresholds simply to force a submitted photo into a desired category. A maintainer reviews changes before the model or vectors are deployed.

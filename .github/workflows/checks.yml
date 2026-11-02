@@ -17,4 +17,4 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run refs:validate
       - run: npm test
-      - run: node --check dist/app.js && node --check dist/vision-worker.js && node --check server.mjs
+      - run: node --check dist/app.js && node --check dist/reviews.js && node --check dist/vision-worker.js && node --check server.mjs && node --check scripts/review-submissions.mjs

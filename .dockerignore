@@ -1,6 +1,8 @@
 **
 !Dockerfile
 !server.mjs
+!server/
+!server/**
 !package.json
 !package-lock.json
 !scripts/

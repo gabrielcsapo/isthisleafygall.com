@@ -69,7 +69,7 @@
           <p class="result-description" id="result-description"></p>
           <p class="result-action" id="result-action"></p>
           <div class="result-buttons"><button class="primary-button small" id="try-another">Try another photo</button><button class="text-button" id="copy-result">Copy result</button></div>
-          <p class="result-caution">Experimental visual match, not a diagnosis.</p>
+          <button class="review-result-link text-button" data-review>Ask us to review this photo</button><p class="result-caution">Experimental visual match, not a diagnosis.</p>
         </div>
         <div id="error-state" hidden role="alert">
           <span class="result-label amber">Couldn’t inspect this photo</span>
@@ -92,24 +92,55 @@
     </section>
 
     <ul class="notes">
-      <li class="privacy-line"><svg aria-hidden="true"><use href="#shield"/></svg><span>Your photo stays on this device and is never uploaded or saved.</span></li>
+      <li class="privacy-line"><svg aria-hidden="true"><use href="#shield"/></svg><span>Photo checks stay on your device. Uploading for a human review is optional.</span></li>
       <li class="checker-note"><svg aria-hidden="true"><use href="#flask"/></svg><span>Experimental, not a diagnosis. It can be wrong, and often can’t decide. <button data-help>What it can’t tell you</button></span></li>
     </ul>
 
     <div class="links-block">
       <p class="links">
         <button id="show-sources">Sources &amp; credits</button>
-        <a class="contribute" href="https://github.com/gabrielcsapo/isthisleafygall.com/issues/new?template=reference-photo.yml" target="_blank" rel="noopener">Share a reference photo ↗</a>
+        <button class="contribute" data-review>Send a photo for review</button><button id="show-support">Support us</button>
         <a href="https://github.com/gabrielcsapo/isthisleafygall.com" target="_blank" rel="noopener">Source code ↗</a>
       </p>
-      <p class="contribute-hint">Reference photo submissions are optional and public on GitHub.</p>
+      <p class="contribute-hint">Send a photo privately for a second look, whether the checker finds a match or not.</p>
     </div>
   </section>
 </main>
 
-<dialog id="help-dialog" aria-labelledby="help-title"><button class="close-dialog" data-close aria-label="Close explanation">×</button><span class="dialog-leaf"><svg aria-hidden="true"><use href="#leaf"/></svg></span><h2 id="help-title">A closer look. On your device.</h2><p>Choose a clear photo, then tap <strong>Inspect photo</strong>. A small vision model runs in your browser and compares your photo against a source-checked set of published reference photos.</p><h3>No photo uploads. No analysis API.</h3><p>The checker and its model download from this website. The photo itself stays in memory on your device. Removing it or leaving the page clears it. We don’t save inspection photos. Anonymous usage counts include the type of result shown.</p><h3>A visual match isn’t a diagnosis.</h3><p>This is an experimental comparison using a general-purpose model and 30 reference photos. These source labels have not been independently confirmed by this project. It has not been validated for diagnosing leafy gall. The result may be wrong, and “normal growth” does not rule out disease. A plant diagnostic clinic can advise on confirmation.</p><h3>Anonymous usage analytics</h3><p>We use PostHog to count visits, traffic sources, reference views and checker outcomes. Analytics uses no cookies or persistent visitor profiles. We do not send your photo, file name or image features, and session recording is disabled. We respect Do Not Track and Global Privacy Control.</p><h3>For the most useful photo</h3><p>Use daylight, keep the crown centred, and show the shoots and any unusual growth clearly. A distant flower photo won’t help.</p><a class="help-link" href="https://bpp.oregonstate.edu/plant-clinic" target="_blank" rel="noopener">Get advice from a plant diagnostic clinic ↗</a></dialog>
+<dialog id="help-dialog" aria-labelledby="help-title"><button class="close-dialog" data-close aria-label="Close explanation">×</button><span class="dialog-leaf"><svg aria-hidden="true"><use href="#leaf"/></svg></span><h2 id="help-title">A closer look. On your device.</h2><p>Choose a clear photo, then tap <strong>Inspect photo</strong>. A small vision model runs in your browser and compares your photo against a source-checked set of published reference photos.</p><h3>On-device checks. Optional private review.</h3><p>The automatic checker runs on your device without an analysis API. Your photo is uploaded only if you choose “Send a photo for review” and confirm the form. Review photos, your email and notes are stored privately in Railway and sent to our review inbox through Resend so we can reply. Embedded photo metadata is removed before storage. Nothing is posted to GitHub.</p><h3>Helping improve the checker</h3><p>Training permission is optional and unchecked by default. With your permission, a reviewed photo may be used for reference matching, training and evaluation. Your email is never part of a training export. Submitting does not automatically add a photo to the model or confirm a diagnosis. Reply to our review email if you want to request deletion or withdraw permission.</p><h3>A visual match isn’t a diagnosis.</h3><p>This is an experimental comparison using a general-purpose model and 30 reference photos. These source labels have not been independently confirmed by this project. It has not been validated for diagnosing leafy gall. The result may be wrong, and “normal growth” does not rule out disease. A plant diagnostic clinic can advise on confirmation.</p><h3>Anonymous usage analytics</h3><p>We use PostHog to count visits, traffic sources, reference views and checker outcomes. Analytics uses no cookies or persistent visitor profiles. We do not send your photo, file name or image features, and session recording is disabled. We respect Do Not Track and Global Privacy Control.</p><h3>For the most useful photo</h3><p>Use daylight, keep the crown centred, and show the shoots and any unusual growth clearly. A distant flower photo won’t help.</p><a class="help-link" href="https://bpp.oregonstate.edu/plant-clinic" target="_blank" rel="noopener">Get advice from a plant diagnostic clinic ↗</a></dialog>
 <dialog id="example-dialog" class="example-dialog" aria-labelledby="example-title"><button class="close-dialog photo-close" data-close aria-label="Close reference photo">×</button><img id="example-photo" alt=""><div class="example-body"><span class="reference-label">Reference photo</span><h2 id="example-title"></h2><p id="example-description"></p><a id="example-source" target="_blank" rel="noopener"></a></div></dialog>
 <dialog id="sources-dialog" aria-labelledby="sources-title"><button class="close-dialog" data-close aria-label="Close sources">×</button><h2 id="sources-title">Sources &amp; photo credits</h2><p>An independent guide. These organisations are not affiliated with this website.</p><ul class="sources-list"><li><a href="https://www.rhs.org.uk/disease/leafy-gall" target="_blank" rel="noopener">RHS: Leafy gall ↗</a></li><li><a href="https://ucanr.edu/node/164427/printable/print" target="_blank" rel="noopener">UC ANR: Identifying crown and leafy gall ↗</a></li><li><a href="https://bpp.oregonstate.edu/crown-gall-and-leafy-gall" target="_blank" rel="noopener">Oregon State University Plant Clinic ↗</a></li></ul><h3>Reference photographs</h3><p>Leafy gall: <a href="https://wildhorsegardens.com/tips-and-tricks/the-dreaded-leafy-gall/" target="_blank" rel="noopener">Wild Horse Gardens</a> and their <a href="https://wildhorsegardens.com/dahlia-disease-biology-part-2-leafy-gall-rhodococcus-fascians/" target="_blank" rel="noopener">disease biology guide</a>. Normal growth: <a href="https://ucanr.edu/node/164427/printable/print" target="_blank" rel="noopener">UC ANR</a>. Crown gall: <a href="https://www.dahliadoctor.com/blogs/second-blog/dahlia-gall-disease-unmasking-crown-gall-and-leafy-gall" target="_blank" rel="noopener">Dahlia Doctor</a>. Photos belong to their respective owners.</p><h3>The reference set</h3><p>30 published visual examples: 12 leafy-gall appearances, 13 normal-growth appearances, and 5 crown-gall appearances. Labels follow their sources; they are not laboratory confirmations. <a href="reference-catalog.json" target="_blank" rel="noopener">View the source catalog ↗</a>. Additional normal examples come from <a href="https://idlewildblooms.com/pages/is-my-tuber-okay" target="_blank" rel="noopener">Idlewild Blooms</a> and <a href="https://summerdreamsfarm.com/dahlia-tuber-and-splitting-guide" target="_blank" rel="noopener">Summer Dreams Farm</a>.</p><h3>On-device checker</h3><p><a href="https://huggingface.co/Xenova/mobileclip_s0" target="_blank" rel="noopener">MobileCLIP-S0</a> with <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noopener">Transformers.js</a>. Model and runtime are served by this site. The checker retrieves similar reference photos; it is not trained or validated as a disease classifier.</p><p class="licenses"><a href="models/mobileclip/LICENSE" target="_blank" rel="noopener">Model licence</a>, <a href="vendor/TRANSFORMERS-LICENSE" target="_blank" rel="noopener">Transformers licence</a>, <a href="vendor/ONNX-LICENSE" target="_blank" rel="noopener">ONNX Runtime licence</a></p></dialog>
 <dialog id="copy-dialog" aria-labelledby="copy-title"><button class="close-dialog" data-close aria-label="Close copy text">×</button><h2 id="copy-title">Ready to share.</h2><p>Select and copy the text below.</p><textarea id="copy-text" rows="6" readonly aria-label="Text to copy"></textarea></dialog>
+
+<dialog id="review-dialog" class="review-dialog ph-no-capture" aria-labelledby="review-title">
+  <button id="review-close" class="close-dialog" data-close aria-label="Close photo review">×</button>
+  <h2 id="review-title">Get a second look.</h2>
+  <form id="review-form" class="review-form">
+    <p>Send us your photo and email. We’ll take a look and email you back when we can. A visual review isn’t a lab diagnosis.</p>
+    <img id="review-preview" class="review-preview" alt="Photo you are choosing to submit for review" hidden>
+    <label for="review-file">Photo for review <span>Use the photo shown, or choose another.</span></label>
+    <input id="review-file" name="review-file" type="file" accept="image/jpeg,image/png,image/webp">
+    <label for="review-email">Your email <span>We’ll send our reply here.</span></label>
+    <input id="review-email" name="email" type="email" maxlength="254" autocomplete="email" required>
+    <label for="review-notes">What should we look at? <span>Optional. Don’t include private location details.</span></label>
+    <textarea id="review-notes" name="notes" maxlength="1000" rows="3"></textarea>
+    <div hidden aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+    <label class="consent-choice"><input id="review-permission" name="reviewPermission" type="checkbox" value="yes" required><span>I have permission to share this photo for private review and to be contacted by email about it.</span></label>
+    <label class="consent-choice"><input id="training-permission" name="trainingPermission" type="checkbox" value="yes"><span><strong>Optional: help improve the checker.</strong> You may use my photo for reviewed reference matching, training and evaluation. My email will stay private.</span></label>
+    <p class="review-privacy">We store review submissions privately in Railway and deliver them to our inbox through Resend. Your photo won’t be posted publicly. Training permission is not required to ask for a review.</p>
+    <p id="review-status" class="form-status" role="status" aria-live="polite"></p>
+    <button id="review-send" class="primary-button" type="submit">Send photo for review</button>
+  </form>
+  <div id="review-success" hidden role="status"><h3>Photo received. Thank you.</h3><p>We’ll review it and email you when we can. There’s no guaranteed turnaround.</p><p class="review-privacy">Your reference: <span id="review-reference"></span></p></div>
+</dialog>
+<dialog id="support-dialog" aria-labelledby="support-title">
+  <button class="close-dialog" data-close aria-label="Close support options">×</button>
+  <h2 id="support-title">Help this little tool grow.</h2>
+  <p>You can help by sharing the guide or sending a photo for review. Every reviewed example helps us understand what the checker gets right and wrong.</p>
+  <div class="support-actions"><button class="primary-button" data-review>Contribute a photo</button><a id="support-donate" class="primary-button" target="_blank" rel="noopener noreferrer" hidden>Leave a tip on Ko-fi</a></div>
+  <p class="review-privacy">Tips help with hosting and storage. Reviews are free, and donating doesn’t change how your photo is reviewed.</p>
+  <p><a href="https://github.com/gabrielcsapo/isthisleafygall.com" target="_blank" rel="noopener">Explore the open-source project ↗</a></p>
+</dialog>
+
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body></html>
