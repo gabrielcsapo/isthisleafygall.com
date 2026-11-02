@@ -47,7 +47,7 @@ test('all result categories explain their limitations and next action', () => {
   }
   assert.match(resultCopy.normal.action, /cannot rule out/);
 });
-test('analysis never uses a remote model or a photo upload endpoint', async () => {
+test('automatic inspection stays local; optional review uploads are separate', async () => {
   const worker = await readFile(new URL('../dist/vision-worker.js', import.meta.url), 'utf8');
   const app = await readFile(new URL('../dist/app.js', import.meta.url), 'utf8');
   const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');

@@ -6,7 +6,7 @@ body:
     id: problem
     attributes:
       label: What happened?
-      description: Include the result you expected and what the checker showed. Use the reference-photo form if you want to contribute an image.
+      description: Include the result you expected and what the checker showed. Use the private review form on isthisleafygall.com to submit photos; do not post private photos or email addresses here.
     validations:
       required: true
   - type: input

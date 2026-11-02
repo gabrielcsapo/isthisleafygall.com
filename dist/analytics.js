@@ -5,7 +5,7 @@ const schemas = {
   $pageview: {}, photo_selected: {}, inspection_started: {}, inspection_cancelled: {},
   inspection_completed: { category: categories, reason: ['reference-match', 'similarity', 'mixed-matches', 'limited-support', 'subject'] },
   inspection_failed: { stage: ['worker', 'loading', 'preparing'] },
-  reference_opened: { category: categories.slice(0, 3) }, guide_shared: {}, reference_submission_opened: {}
+  reference_opened: { category: categories.slice(0, 3) }, guide_shared: {}, review_form_opened: {}, review_submitted: {}, review_submission_failed: {}, support_opened: {}, support_donation_opened: {}
 };
 export function eventProperties(name, properties = {}) {
   if (!Object.hasOwn(schemas, name)) return null;

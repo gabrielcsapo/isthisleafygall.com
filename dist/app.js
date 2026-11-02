@@ -1,3 +1,4 @@
+import { setupReviews } from './reviews.js';
 import { track } from './analytics.js';
 import { getResultCopy } from './inference.js';
 const siteUrl = new URL('/', window.location.href).href;
@@ -9,11 +10,10 @@ async function copyText(text, message) {
   catch { $('#copy-text').value = text; $('#copy-dialog').showModal(); $('#copy-text').select(); }
 }
 $('#share-guide').addEventListener('click', () => { track('guide_shared'); copyText(siteUrl, 'Guide link copied.'); });
-document.querySelector('.contribute').addEventListener('click', () => track('reference_submission_opened'));
 document.querySelectorAll('[data-help]').forEach(button => button.addEventListener('click', () => $('#help-dialog').showModal()));
 $('#show-sources').addEventListener('click', () => $('#sources-dialog').showModal());
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
-document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => { if (event.target === dialog) { const b = dialog.getBoundingClientRect(); if (event.clientX < b.left || event.clientX > b.right || event.clientY < b.top || event.clientY > b.bottom) dialog.close(); } }));
+document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => { if (event.target === dialog && dialog.getAttribute('aria-busy') !== 'true') { const b = dialog.getBoundingClientRect(); if (event.clientX < b.left || event.clientX > b.right || event.clientY < b.top || event.clientY > b.bottom) dialog.close(); } }));
 const examples = {
   leafy: { title: 'Leafy gall', image: 'leafy-detail.jpg', description: 'A tightly packed cluster of small, distorted shoots, often at the crown or soil line. Simply having lots of eyes does not establish leafy gall.', source: 'Wild Horse Gardens', url: 'https://wildhorsegardens.com/dahlia-disease-biology-part-2-leafy-gall-rhodococcus-fascians/' },
   normal: { title: 'Normal growth', image: 'normal-growth.jpg', description: 'Individual shoots developing recognisable stems and leaves. Several eyes can sprout on the same healthy clump. This photo is shown by UC ANR as normal dahlia growth.', source: 'UC ANR', url: 'https://ucanr.edu/node/164427/printable/print' },
@@ -125,3 +125,5 @@ $('#inspect-photo').addEventListener('click', inspect);
 $('#retry-inspection').addEventListener('click', inspect);
 $('#copy-result').addEventListener('click', () => { if (!lastResult) return; const copy = getResultCopy(lastResult); copyText(`${copy.title} ${copy.description} ${copy.action}\n\nExperimental visual comparison, not a confirmed diagnosis. ${siteUrl}`, 'Result copied.'); });
 window.addEventListener('pagehide', clearPhoto);
+
+setupReviews({ getPhoto: () => photo, getResult: () => lastResult });
