@@ -9,3 +9,7 @@ dist/vendor/
 dist/models/mobileclip/
 dist/models/binaries.json
 .DS_Store
+!dist/assets/leafy-gall.jpg
+!dist/assets/leafy-detail.jpg
+!dist/assets/normal-growth.jpg
+!dist/assets/crown-gall.jpg

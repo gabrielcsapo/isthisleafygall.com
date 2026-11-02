@@ -24,7 +24,7 @@ These source-checked labels are not laboratory confirmations. The comparison mod
 
 A leave-related-group-out check of this small convenience set produced 8 matching categories, 22 abstentions, and 0 wrong categories after adding the support check. This is a development check on source labels, **not a clinical accuracy estimate**. The set is small, related specimens may remain, and normal-looking infected plants are a known limitation. The thresholds remain conservative; the abstention rate is high.
 
-Third-party photos are not copied into the Git repository or relicensed as an open training dataset. The source URLs, descriptions, provenance, and generated reference vectors are tracked. Downloaded images and model binaries are generated locally and ignored. Community photo submissions have a separate explicit permission process.
+The four display reference photos are pinned in `dist/assets/` so image-CDN encoding changes cannot break a deployment. Their original credits and copyright notices are retained; they are not covered by the code licence. The other downloaded reference photos and all user inspection photos are excluded from the repository. Source URLs, descriptions, provenance, and generated reference vectors are tracked; this is not a relicensed open photo dataset. Model binaries are generated locally and ignored. Community photo submissions have a separate explicit permission process.
 
 ## Run locally
 
@@ -36,7 +36,7 @@ npm run prepare-runtime
 npm start
 ```
 
-Open http://localhost:8080. The preparation step downloads the pinned model and self-hosted runtime plus the four displayed reference thumbnails. It does not upload any visitor photos. Docker runs the same preparation during its build, so GitHub deployments are reproducible without checked-in binary blobs.
+Open http://localhost:8080. The preparation step downloads the pinned model and self-hosted runtime and verifies the four pinned display reference thumbnails. It does not upload any visitor photos. Docker runs the same preparation during its build, so GitHub deployments are reproducible without checked-in binary blobs.
 
 The first inspection loads approximately 75 MB. Inference runs in a Web Worker via ONNX Runtime WebAssembly. All model, font, and script files are served by the site itself. No browser photo or result is stored.
 
