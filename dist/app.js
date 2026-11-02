@@ -24,6 +24,15 @@ document.querySelectorAll('[data-example]').forEach(button => button.addEventLis
   $('#example-source').href = e.url; $('#example-source').textContent = `Photo & further reading: ${e.source} ↗`;
   $('#example-dialog').showModal();
 }));
+// Presentation only: mark the reference categories the result refers to. Displayed photos are examples, not necessarily the retrieved neighbours.
+function markReferences(categories = [], note = '') {
+  document.querySelectorAll('[data-example]').forEach(button => {
+    const match = categories.includes(button.dataset.example);
+    button.classList.toggle('is-match', match);
+    const label = button.querySelector('.match-note');
+    if (label) { label.textContent = match ? note : ''; label.hidden = !match; }
+  });
+}
 function errorText(message) { $('#file-error').textContent = message; $('#file-error').hidden = !message; }
 function showState(state) { for (const name of ['ready', 'loading', 'result', 'error']) $(`#${name}-state`).hidden = name !== state; }
 function stopInspection() {
@@ -34,7 +43,7 @@ function stopInspection() {
 function clearPhoto() {
   stopInspection();
   if (photo) URL.revokeObjectURL(photo.url);
-  photo = undefined; lastResult = undefined;
+  photo = undefined; lastResult = undefined; markReferences();
   $('#preview-image').removeAttribute('src'); $('#photo-input').value = ''; $('#camera-input').value = '';
   $('#inspection').hidden = true; $('#drop-zone').hidden = false; errorText('');
   $('#choose-photo').focus();
@@ -52,7 +61,7 @@ async function selectPhoto(file) {
     if (Math.min(image.naturalWidth, image.naturalHeight) < 64) throw new Error('That photo is too small. Choose a clear photo at least 64 pixels across.');
     if (image.naturalWidth * image.naturalHeight > 50_000_000) throw new Error('That photo is too large to process. Choose a smaller copy under 50 megapixels.');
     if (photo) URL.revokeObjectURL(photo.url);
-    photo = { url, image }; lastResult = undefined;
+    photo = { url, image }; lastResult = undefined; markReferences();
     $('#preview-image').src = url;
     $('#drop-zone').hidden = true; $('#inspection').hidden = false; showState('ready'); $('#inspect-photo').focus();
   } catch (error) { URL.revokeObjectURL(url); if (request === activeRequest) errorText(error.message?.startsWith('That photo') ? error.message : 'This file couldn’t be opened as a photo. Try a different JPG, PNG or WebP.'); }
@@ -78,6 +87,9 @@ function renderResult(result) {
   $('#result-label').textContent = copy.label; $('#result-label').className = `result-label ${copy.tone}`;
   $('#result-title').textContent = copy.title; $('#result-description').textContent = copy.description;
   $('#result-action').textContent = copy.action;
+  if (result.category !== 'unclear') markReferences([result.category], 'Closest category');
+  else if (result.reason === 'mixed-matches') markReferences(result.candidates || [], 'Possible category');
+  else markReferences();
   showState('result'); $('#result-title').focus();
 }
 function onWorkerMessage(event) {
@@ -91,7 +103,7 @@ function onWorkerMessage(event) {
 async function inspect() {
   if (!photo || busy) return;
   busy = true; const id = ++activeRequest;
-  $('#remove-photo').disabled = true; showState('loading'); $('#loading-text').textContent = 'Preparing your photo on this device…';
+  $('#remove-photo').disabled = true; markReferences(); showState('loading'); $('#loading-text').textContent = 'Preparing your photo on this device…';
   try {
     if (!('Worker' in window) || !('WebAssembly' in window)) throw new Error('This browser doesn’t support the on-device checker. Try a recent browser, or compare the reference photos below.');
     const scale = Math.min(1, 1536 / Math.max(photo.image.naturalWidth, photo.image.naturalHeight));
