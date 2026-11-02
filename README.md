@@ -38,7 +38,7 @@ npm start
 
 Open http://localhost:8080. The preparation step downloads the pinned model and self-hosted runtime and verifies the four pinned display reference thumbnails. It does not upload any visitor photos. Docker runs the same preparation during its build, so GitHub deployments are reproducible without checked-in binary blobs.
 
-The first inspection loads approximately 75 MB. Inference runs in a Web Worker via ONNX Runtime WebAssembly. All model, font, and script files are served by the site itself. No browser photo or result is stored.
+The first inspection loads approximately 75 MB. Inference runs in a Web Worker via ONNX Runtime WebAssembly. All model, font, and script files are served by the site itself. No inspection photo is stored or uploaded. When analytics is configured, only coarse usage events and the displayed result category/reason are counted.
 
 ## Update reference vectors
 
@@ -67,3 +67,11 @@ Railway builds the Dockerfile, serves static files with a small Node server, and
 ## Licences
 
 Original application code is [MIT licensed](LICENSE). DM Sans uses its included SIL Open Font License. Model and runtime licences are retained during preparation. Third-party reference photographs retain their owners’ rights; source labels and public availability do not grant a new photo licence. The GitHub photo-submission form asks contributors to license their own photos and descriptions under CC BY 4.0.
+
+## Usage analytics
+
+PostHog is optional. Set `POSTHOG_PROJECT_TOKEN` (a public `phc_` project token) and `POSTHOG_API_HOST` (the project’s official ingestion host) in Railway. Missing or invalid configuration disables analytics without affecting photo inspection. Never use a private personal API key. For local configuration, use an ignored `.env.local` and `node --env-file=.env.local server.mjs`.
+
+The self-hosted slim SDK runs in cookieless mode with person profiles, session replay, autocapture, surveys, heatmaps and exception capture disabled. Enable cookieless tracking in the PostHog project before activation. Do Not Track and Global Privacy Control skip analytics entirely.
+
+Tracked events: page view, photo selected (no file metadata), inspection started/completed/failed/cancelled, reference opened, guide shared and reference-submission link opened. Only fixed categories/reasons/stages are accepted. URLs lose queries and fragments; referrers retain only the domain. Photos, filenames, image features and diagnostic error text are excluded. Blockers or analytics outages never prevent inspection.

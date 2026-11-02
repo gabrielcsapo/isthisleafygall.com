@@ -17,6 +17,8 @@ export async function prepareRuntime(){
  await copyFile('node_modules/@huggingface/transformers/dist/transformers.min.js','dist/vendor/transformers.min.js');
  await copyFile('node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.mjs','dist/vendor/ort-wasm-simd-threaded.jsep.mjs');
  await copyFile('node_modules/@huggingface/transformers/LICENSE','dist/vendor/TRANSFORMERS-LICENSE');
+ await copyFile('node_modules/posthog-js/dist/module.slim.no-external.js','dist/vendor/posthog.js');
+ await copyFile('node_modules/posthog-js/LICENSE','dist/vendor/POSTHOG-LICENSE');
  const license=await fetch('https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE');
  if(!license.ok)throw new Error('ONNX license download failed');await writeFile('dist/vendor/ONNX-LICENSE',await license.text());
  async function shard(source,prefix){

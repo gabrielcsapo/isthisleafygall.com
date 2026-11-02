@@ -14,6 +14,13 @@ const server = createServer(async (req, res) => {
   try { pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname); }
   catch { res.writeHead(400);res.end('Bad request');return; }
   if (pathname === '/healthz') { res.writeHead(200, { 'Content-Type':'text/plain', 'Cache-Control':'no-store' });res.end(req.method === 'HEAD' ? undefined : 'ok');return; }
+  if (pathname === '/analytics-config.json') {
+    const projectToken = process.env.POSTHOG_PROJECT_TOKEN || '';
+    const apiHost = process.env.POSTHOG_API_HOST || '';
+    const enabled = /^phc_[a-zA-Z0-9_]+$/.test(projectToken) && ['https://us.i.posthog.com', 'https://eu.i.posthog.com'].includes(apiHost);
+    res.writeHead(200, { 'Content-Type':'application/json', 'Cache-Control':'no-store' });
+    res.end(req.method === 'HEAD' ? undefined : JSON.stringify(enabled ? {enabled,projectToken,apiHost} : {enabled:false})); return;
+  }
   const file = resolve(root, `.${pathname === '/' ? '/index.html' : pathname}`);
   if (!file.startsWith(root + sep) || pathname.includes('\0') || pathname.split('/').some(part => part.startsWith('.'))) { res.writeHead(404);res.end('Not found');return; }
   try {
@@ -33,5 +40,5 @@ const server = createServer(async (req, res) => {
     stream.pipe(res);
   } catch { res.writeHead(404, { 'Content-Type':'text/plain' });res.end('Not found'); }
 });
-server.listen(Number(process.env.PORT || 8080), '0.0.0.0', () => console.log(`Leafy gall guide listening on port ${process.env.PORT || 8080}`));
+server.listen(Number(process.env.PORT || 8080), '0.0.0.0', () => console.log(`Leafy gall guide listening on port ${server.address().port}`));
 for (const signal of ['SIGTERM','SIGINT']) process.on(signal, () => { server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 5000).unref(); });

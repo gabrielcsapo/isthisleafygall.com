@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@huggingface/transformers": "4.3.2"
+    "@huggingface/transformers": "4.3.2",
+    "posthog-js": "1.444.0"
   },
   "scripts": {
     "prepare-model": "node scripts/prepare-model.mjs",

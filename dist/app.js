@@ -1,3 +1,4 @@
+import { track } from './analytics.js';
 import { getResultCopy } from './inference.js';
 const siteUrl = new URL('/', window.location.href).href;
 const $ = selector => document.querySelector(selector);
@@ -7,7 +8,8 @@ async function copyText(text, message) {
   try { await navigator.clipboard.writeText(text); toast(message); }
   catch { $('#copy-text').value = text; $('#copy-dialog').showModal(); $('#copy-text').select(); }
 }
-$('#share-guide').addEventListener('click', () => copyText(siteUrl, 'Guide link copied.'));
+$('#share-guide').addEventListener('click', () => { track('guide_shared'); copyText(siteUrl, 'Guide link copied.'); });
+document.querySelector('.contribute').addEventListener('click', () => track('reference_submission_opened'));
 document.querySelectorAll('[data-help]').forEach(button => button.addEventListener('click', () => $('#help-dialog').showModal()));
 $('#show-sources').addEventListener('click', () => $('#sources-dialog').showModal());
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
@@ -19,6 +21,7 @@ const examples = {
 };
 document.querySelectorAll('[data-example]').forEach(button => button.addEventListener('click', () => {
   const e = examples[button.dataset.example];
+  track('reference_opened', { category: button.dataset.example });
   $('#example-photo').src = `assets/${e.image}`; $('#example-photo').alt = `${e.title} reference photo`;
   $('#example-title').textContent = e.title; $('#example-description').textContent = e.description;
   $('#example-source').href = e.url; $('#example-source').textContent = `Photo & further reading: ${e.source} ↗`;
@@ -61,7 +64,7 @@ async function selectPhoto(file) {
     if (Math.min(image.naturalWidth, image.naturalHeight) < 64) throw new Error('That photo is too small. Choose a clear photo at least 64 pixels across.');
     if (image.naturalWidth * image.naturalHeight > 50_000_000) throw new Error('That photo is too large to process. Choose a smaller copy under 50 megapixels.');
     if (photo) URL.revokeObjectURL(photo.url);
-    photo = { url, image }; lastResult = undefined; markReferences();
+    photo = { url, image }; lastResult = undefined; markReferences(); track('photo_selected');
     $('#preview-image').src = url;
     $('#drop-zone').hidden = true; $('#inspection').hidden = false; showState('ready'); $('#inspect-photo').focus();
   } catch (error) { URL.revokeObjectURL(url); if (request === activeRequest) errorText(error.message?.startsWith('That photo') ? error.message : 'This file couldn’t be opened as a photo. Try a different JPG, PNG or WebP.'); }
@@ -72,7 +75,7 @@ for (const id of ['#photo-input', '#camera-input']) $(id).addEventListener('chan
 $('#remove-photo').addEventListener('click', clearPhoto);
 $('#try-another').addEventListener('click', clearPhoto);
 $('#change-photo').addEventListener('click', () => $('#photo-input').click());
-$('#cancel-inspection').addEventListener('click', () => { stopInspection(); showState('ready'); $('#inspect-photo').focus(); });
+$('#cancel-inspection').addEventListener('click', () => { track('inspection_cancelled'); stopInspection(); showState('ready'); $('#inspect-photo').focus(); });
 const dropZone = $('#drop-zone');
 let dragDepth = 0;
 for (const type of ['dragenter', 'dragover']) dropZone.addEventListener(type, event => { event.preventDefault(); if (type === 'dragenter') dragDepth++; dropZone.classList.add('drag-over'); });
@@ -83,6 +86,7 @@ window.addEventListener('drop', event => event.preventDefault());
 window.addEventListener('paste', event => { if (document.querySelector('dialog[open]') || busy) return; const file = [...(event.clipboardData?.files || [])].find(item => item.type.startsWith('image/')); if (file) selectPhoto(file); });
 function renderResult(result) {
   lastResult = result;
+  track('inspection_completed', { category: result.category, reason: result.reason });
   const copy = getResultCopy(result);
   $('#result-label').textContent = copy.label; $('#result-label').className = `result-label ${copy.tone}`;
   $('#result-title').textContent = copy.title; $('#result-description').textContent = copy.description;
@@ -98,11 +102,11 @@ function onWorkerMessage(event) {
   if (message.id !== activeRequest) return;
   busy = false; $('#remove-photo').disabled = false;
   if (message.type === 'result') renderResult(message.result);
-  if (message.type === 'error') { console.error('[Leafy gall checker]', message.diagnostic || message.message); stopInspection(); $('#inspection-error').textContent = message.message; showState('error'); }
+  if (message.type === 'error') { track('inspection_failed', { stage: 'worker' }); console.error('[Leafy gall checker]', message.diagnostic || message.message); stopInspection(); $('#inspection-error').textContent = message.message; showState('error'); }
 }
 async function inspect() {
   if (!photo || busy) return;
-  busy = true; const id = ++activeRequest;
+  busy = true; const id = ++activeRequest; track('inspection_started');
   $('#remove-photo').disabled = true; markReferences(); showState('loading'); $('#loading-text').textContent = 'Preparing your photo on this device…';
   try {
     if (!('Worker' in window) || !('WebAssembly' in window)) throw new Error('This browser doesn’t support the on-device checker. Try a recent browser, or compare the reference photos by eye.');
@@ -113,9 +117,9 @@ async function inspect() {
     const context = canvas.getContext('2d', { willReadFrequently: true });
     context.fillStyle = '#ffffff'; context.fillRect(0, 0, width, height); context.drawImage(photo.image, 0, 0, width, height);
     const pixels = context.getImageData(0, 0, width, height).data.buffer;
-    if (!worker) { worker = new Worker(new URL('./vision-worker.js', import.meta.url), { type: 'module' }); worker.addEventListener('message', onWorkerMessage); worker.addEventListener('error', () => { if (!busy) return; stopInspection(); $('#inspection-error').textContent = 'The on-device checker couldn’t load. Check your connection and try again. Your photo has not been uploaded.'; showState('error'); }); }
+    if (!worker) { worker = new Worker(new URL('./vision-worker.js', import.meta.url), { type: 'module' }); worker.addEventListener('message', onWorkerMessage); worker.addEventListener('error', () => { if (!busy) return; track('inspection_failed', { stage: 'loading' }); stopInspection(); $('#inspection-error').textContent = 'The on-device checker couldn’t load. Check your connection and try again. Your photo has not been uploaded.'; showState('error'); }); }
     worker.postMessage({ type: 'inspect', id, pixels, width, height }, [pixels]);
-  } catch (error) { busy = false; $('#remove-photo').disabled = false; $('#inspection-error').textContent = error.message; showState('error'); }
+  } catch (error) { track('inspection_failed', { stage: 'preparing' }); busy = false; $('#remove-photo').disabled = false; $('#inspection-error').textContent = error.message; showState('error'); }
 }
 $('#inspect-photo').addEventListener('click', inspect);
 $('#retry-inspection').addEventListener('click', inspect);
