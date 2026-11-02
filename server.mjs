@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { createReviewHandler } from './server/review-http.mjs';
+import { createAdminHandler } from './server/admin-http.mjs';
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
@@ -7,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('./dist/', import.meta.url)).replace(/\/$/, '');
 const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json', '.jpg':'image/jpeg', '.png':'image/png', '.webp':'image/webp', '.svg':'image/svg+xml', '.ttf':'font/ttf', '.wasm':'application/wasm', '.bin':'application/octet-stream' };
 const reviews = createReviewHandler();
+const admin = createAdminHandler();
 const server = createServer(async (req, res) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -14,6 +16,7 @@ const server = createServer(async (req, res) => {
   let pathname;
   try { pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname); }
   catch { res.writeHead(400);res.end('Bad request');return; }
+  if (await admin.handle(req,res,new URL(req.url,'http://localhost'))) return;
   if (await reviews.handle(req,res,pathname)) return;
   if (!['GET','HEAD'].includes(req.method)) { res.writeHead(405, { Allow:'GET, HEAD' }); res.end('Method not allowed'); return; }
   if (pathname === '/healthz') { res.writeHead(200, { 'Content-Type':'text/plain', 'Cache-Control':'no-store' });res.end(req.method === 'HEAD' ? undefined : 'ok');return; }
@@ -24,7 +27,9 @@ const server = createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type':'application/json', 'Cache-Control':'no-store' });
     res.end(req.method === 'HEAD' ? undefined : JSON.stringify(enabled ? {enabled,projectToken,apiHost} : {enabled:false})); return;
   }
-  const file = resolve(root, `.${pathname === '/' ? '/index.html' : pathname}`);
+  const privateAdmin=pathname==='/admin' || pathname.startsWith('/admin/');
+  if(privateAdmin) {res.setHeader('Referrer-Policy','no-referrer');res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Robots-Tag','noindex, nofollow');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");}
+  const file = resolve(root, `.${pathname === '/' ? '/index.html' : pathname === '/admin' || pathname === '/admin/' ? '/admin/index.html' : pathname}`);
   if (!file.startsWith(root + sep) || pathname.includes('\0') || pathname.split('/').some(part => part.startsWith('.'))) { res.writeHead(404);res.end('Not found');return; }
   try {
     const info = await stat(file);
@@ -32,7 +37,7 @@ const server = createServer(async (req, res) => {
     const extension = extname(file);
     const tag = `"${info.size.toString(16)}-${Math.floor(info.mtimeMs).toString(16)}"`;
     res.setHeader('Content-Type', mime[extension] || 'text/plain; charset=utf-8');
-    res.setHeader('Cache-Control', /-[a-f0-9]{12}-\d+\.bin$/.test(file) ? 'public, max-age=31536000, immutable' : 'no-cache');
+    res.setHeader('Cache-Control', privateAdmin ? 'private, no-store' : /-[a-f0-9]{12}-\d+\.bin$/.test(file) ? 'public, max-age=31536000, immutable' : 'no-cache');
     res.setHeader('ETag', tag);
     if (req.headers['if-none-match'] === tag) { res.writeHead(304);res.end();return; }
     res.setHeader('Content-Length', info.size);
@@ -44,4 +49,4 @@ const server = createServer(async (req, res) => {
   } catch { res.writeHead(404, { 'Content-Type':'text/plain' });res.end('Not found'); }
 });
 server.listen(Number(process.env.PORT || 8080), '0.0.0.0', () => console.log(`Leafy gall guide listening on port ${server.address().port}`));
-for (const signal of ['SIGTERM','SIGINT']) process.on(signal, () => { reviews.close(); server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 5000).unref(); });
+for (const signal of ['SIGTERM','SIGINT']) process.on(signal, () => { reviews.close(); admin.close(); server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 5000).unref(); });

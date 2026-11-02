@@ -13,6 +13,8 @@ export function createReviewStorage(config) {
     async putJson(key,value) { await store.putBytes(key,Buffer.from(JSON.stringify(value)), 'application/json'); },
     async getBytes(key) { const result=await send(new GetObjectCommand({Bucket:config.bucket,Key:key})); return Buffer.from(await result.Body.transformToByteArray()); },
     async getJson(key) { try {return JSON.parse(await store.getBytes(key));} catch(error) { if(error.name==='NoSuchKey' || error.$metadata?.httpStatusCode===404)return null;throw error; } },
+    async getJsonVersion(key) {try {const result=await send(new GetObjectCommand({Bucket:config.bucket,Key:key}));return {value:JSON.parse(await result.Body.transformToString()),etag:result.ETag};}catch(error){if(error.name==='NoSuchKey' || error.$metadata?.httpStatusCode===404)return {value:null,etag:null};throw error;}},
+    async putJsonVersion(key,value,etag) {try {await send(new PutObjectCommand({Bucket:config.bucket,Key:key,Body:Buffer.from(JSON.stringify(value)),ContentType:'application/json',CacheControl:'private, no-store',...(etag?{IfMatch:etag}:{IfNoneMatch:'*'})}));}catch(error){if([409,412].includes(error.$metadata?.httpStatusCode)){const conflict=new Error('This review changed in another tab. Refresh and try again.');conflict.status=409;throw conflict;}throw error;}},
     async delete(key) { await send(new DeleteObjectCommand({Bucket:config.bucket,Key:key})); },
     async list(prefix,limit=1000) {
       const keys=[];let token;

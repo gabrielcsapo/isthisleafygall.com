@@ -107,7 +107,7 @@ export function createReviewService({ storage, sendNotification, now = () => new
 export function reviewNotification(record, photo, {from,to}) {
   return { from, to:[to], reply_to:record.email,
     subject:`Dahlia photo review: ${record.id}`,
-    text:[`A visitor requested a photo review. Reply to this email to answer them.`, `Review ID: ${record.id}`, `Submitted: ${record.createdAt}`, `Visitor email: ${record.email}`, `Checker comparison (unverified): ${record.modelCategory}`, `Training permission: ${record.consent.trainingAllowed ? 'YES' : 'NO — review only; exclude from training'}`, `Notes from the visitor:\n${record.notes || '(none)'}`, 'The attached photo has been resized and its embedded metadata removed. Stored privately in Railway.','Please do not describe a visual review as laboratory confirmation.'].join('\n\n'),
+    text:[`A visitor requested a photo review. Open https://isthisleafygall.com/admin#${record.id} to review it on the site, or reply to this email to answer them.`, `Review ID: ${record.id}`, `Submitted: ${record.createdAt}`, `Visitor email: ${record.email}`, `Checker comparison (unverified): ${record.modelCategory}`, `Training permission: ${record.consent.trainingAllowed ? 'YES' : 'NO — review only; exclude from training'}`, `Notes from the visitor:\n${record.notes || '(none)'}`, 'The attached photo has been resized and its embedded metadata removed. Stored privately in Railway.','Please do not describe a visual review as laboratory confirmation.'].join('\n\n'),
     attachments:[{filename:`dahlia-review-${record.id}.jpg`,content:photo.toString('base64')}] };
 }
 export function makeResendNotifier(config, fetcher = fetch) {

@@ -12,8 +12,8 @@ The required permission covers ownership/sharing rights and contact about the re
 
 - Reply to the visitor from the notification email; its Reply-To is the visitor’s address.
 - Keep visual assessment, a suspected condition and laboratory confirmation distinct. A model result is not a ground-truth label.
-- Use the private review command documented in README to record a human category. Record uncertain cases as `unclear`.
-- Only explicitly consented, human-labelled cases can be exported for training/evaluation. The export excludes email addresses and notes. Normal growth and lookalikes are as important as suspected disease.
+- Use the owner-only review desk at /admin to record a human category, or the private command documented in README. Record uncertain cases as `unclear`.
+- Only explicitly consented, human-labelled cases can be approved in the review desk or exported for training/evaluation. The export excludes email addresses and notes. Normal growth and lookalikes are as important as suspected disease.
 - Keep multiple views of the same plant grouped. Exclude disputed or uncertain examples from accepted references, and prevent overlap between reference/training groups and evaluation groups.
 - Check rights and evidence again before making any model update. Publishing raw private photos requires separate explicit permission; do not put uploads or exports in this repository.
 - Use the private commands to honor permission withdrawals and deletion requests. Remove prior exports and inbox attachments as appropriate.

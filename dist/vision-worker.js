@@ -16,29 +16,32 @@ async function loadEngine() {
     phase = 'loading the runtime';
     env.backends.onnx.wasm.wasmBinary = await loadBinary(binaries.wasm, baseURL, value => self.postMessage({ type: 'progress', text: `Loading the local runtime… ${Math.round(value * 100)}%` }));
     phase = 'loading the model';
-    const [processor, model, response] = await Promise.all([
+    const [processor, model] = await Promise.all([
       AutoProcessor.from_pretrained('mobileclip', { local_files_only: true }),
       CLIPVisionModelWithProjection.from_pretrained('mobileclip', { dtype: 'fp32', device: 'wasm', local_files_only: true }),
-      fetch(new URL('models/references.json', baseURL)),
     ]);
-    if (!response.ok) throw new Error('The reference images could not be loaded.');
-    return { processor, model, database: await response.json() };
+    return { processor, model };
   })();
   try { return await engine; } catch (error) { engine = undefined; throw error; }
 }
 self.addEventListener('message', async event => {
-  if (event.data.type !== 'inspect') return;
+  if (!['inspect','embed'].includes(event.data.type)) return;
   const { pixels, width, height, id } = event.data;
   try {
     if (!Number.isInteger(width) || !Number.isInteger(height) || width < 64 || height < 64 || width > 1536 || height > 1536 || pixels.byteLength !== width * height * 4) throw new Error('Choose a clear photo at least 64 pixels across.');
-    const { processor, model, database } = await loadEngine();
+    const { processor, model } = await loadEngine();
+    const response=await fetch(new URL('../reference-index.json',baseURL),{cache:'no-cache'});
+    if(!response.ok)throw new Error('The reference images could not be loaded.');
+    const database=await response.json();
     self.postMessage({ type: 'progress', text: 'Comparing your photo on this device…' });
     phase = 'preparing the photo';
     const image = new RawImage(new Uint8ClampedArray(pixels), width, height, 4);
     const inputs = await processor(image);
     phase = 'inspecting the photo';
     const output = await model(inputs);
-    const result = compareEmbedding(output.image_embeds.normalize().tolist()[0], database);
+    const embedding=output.image_embeds.normalize().tolist()[0];
+    if(event.data.type==='embed'){self.postMessage({type:'embedding',id,embedding,modelRevision:database.revision});return;}
+    const result = compareEmbedding(embedding, database);
     self.postMessage({ type: 'result', id, result });
   } catch (error) {
     const message = error.message?.includes('64 pixels') ? error.message
