@@ -5,101 +5,110 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Is this leafy gall? Take a closer look.</title>
 <meta name="description" content="Choose a dahlia photo for an experimental on-device visual comparison with leafy gall, normal growth and crown gall examples. Your photo stays in your browser.">
-<meta property="og:title" content="Is this leafy gall?"><meta property="og:description" content="A closer look at your dahlia. Photo comparison that runs on your device."><meta property="og:type" content="website"><meta property="og:url" content="https://isthisleafygall.com"><meta property="og:image" content="https://isthisleafygall.com/assets/leafy-gall.jpg"><meta name="theme-color" content="#e6e8e3">
+<meta property="og:title" content="Is this leafy gall?"><meta property="og:description" content="A closer look at your dahlia. Photo comparison that runs on your device."><meta property="og:type" content="website"><meta property="og:url" content="https://isthisleafygall.com"><meta property="og:image" content="https://isthisleafygall.com/assets/leafy-gall.jpg"><meta name="theme-color" content="#f2f3ef">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script type="module" src="app.js"></script>
 </head>
 <body>
-<svg class="icon-library" xmlns="http://www.w3.org/2000/svg"><symbol id="leaf" viewBox="0 0 24 24"><path d="M20 4C9 2 3 7 5 15c2 6 10 5 13-1 2-4 2-7 2-10Z" fill="currentColor"/><path d="m4 21 12-12" stroke="var(--leaf-stroke,#fff)" stroke-width="1.5" stroke-linecap="round"/></symbol><symbol id="photo" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-4 4 4 4-6 5 7"/></symbol><symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol><symbol id="shield" viewBox="0 0 24 24"><path d="m12 3 7 3v5c0 5-7 9-7 9s-7-4-7-9V6l7-3Z"/><path d="m8 11 3 3 5-6"/></symbol><symbol id="camera" viewBox="0 0 24 24"><path d="m8 5 1-2h6l1 2h4v15H4V5h4Z"/><circle cx="12" cy="12" r="4"/></symbol><symbol id="link" viewBox="0 0 24 24"><path d="m10 7 2-2a5 5 0 0 1 7 7l-3 3a5 5 0 0 1-7 0m5 2-2 2a5 5 0 0 1-7-7l3-3a5 5 0 0 1 7 0"/></symbol><symbol id="scan" viewBox="0 0 24 24"><path d="M3 8V3h5m8 0h5v5m0 8v5h-5M8 21H3v-5M7 12h10"/></symbol></svg>
+<svg class="icon-library" xmlns="http://www.w3.org/2000/svg"><symbol id="leaf" viewBox="0 0 24 24"><path d="M20 4C9 2 3 7 5 15c2 6 10 5 13-1 2-4 2-7 2-10Z" fill="currentColor"/><path d="m4 21 12-12" stroke="var(--leaf-stroke,#fff)" stroke-width="1.5" stroke-linecap="round"/></symbol><symbol id="photo" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-4 4 4 4-6 5 7"/></symbol><symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol><symbol id="shield" viewBox="0 0 24 24"><path d="m12 3 7 3v5c0 5-7 9-7 9s-7-4-7-9V6l7-3Z"/><path d="m8 11 3 3 5-6"/></symbol><symbol id="camera" viewBox="0 0 24 24"><path d="m8 5 1-2h6l1 2h4v15H4V5h4Z"/><circle cx="12" cy="12" r="4"/></symbol><symbol id="link" viewBox="0 0 24 24"><path d="m10 7 2-2a5 5 0 0 1 7 7l-3 3a5 5 0 0 1-7 0m5 2-2 2a5 5 0 0 1-7-7l3-3a5 5 0 0 1 7 0"/></symbol><symbol id="scan" viewBox="0 0 24 24"><path d="M3 8V3h5m8 0h5v5m0 8v5h-5M8 21H3v-5M7 12h10"/></symbol><symbol id="flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></symbol></svg>
 <a class="skip-link" href="#main">Skip to photo checker</a>
 
 <header class="header">
   <a class="brand" href="./"><span class="brand-mark"><svg aria-hidden="true"><use href="#leaf"/></svg></span>isthisleafygall<span>.com</span></a>
   <nav aria-label="Main navigation">
-    <button class="nav-link nav-help" data-help>How it works</button>
-    <button class="nav-link" id="show-sources">Sources &amp; credits</button>
+    <button class="nav-link" data-help>How it works</button>
     <button class="share-button" id="share-guide"><svg aria-hidden="true"><use href="#link"/></svg><span>Share guide</span></button>
   </nav>
 </header>
 
 <main id="main" class="main">
-  <section class="intro" aria-labelledby="page-title">
+  <div class="intro">
     <h1 id="page-title">Is this leafy gall?</h1>
-    <p class="lede">Compare a close-up of your dahlia’s crown with published photos of leafy gall, normal growth and crown gall.</p>
-    <p class="checker-note">This is an experimental comparison, not a diagnosis. It often can’t find a reliable match, and will tell you when that happens. <button data-help>What it can and can’t tell you</button></p>
-  </section>
+    <p class="lede">Add a photo of the crown to see it beside published examples. An experimental check can run right here on your device.</p>
+  </div>
 
-  <div class="bench">
-    <section class="checker" aria-label="Dahlia photo checker">
-      <div class="drop-zone" id="drop-zone">
-        <span class="viewfinder" aria-hidden="true"></span>
-        <div class="drop-body">
-          <h2>Add a photo of your dahlia</h2>
-          <p>A close-up of the crown in daylight works best.</p>
-          <div class="drop-actions">
-            <button class="primary-button" id="choose-photo"><svg aria-hidden="true"><use href="#photo"/></svg>Choose a photo</button>
-            <button class="secondary-button" id="take-photo"><svg aria-hidden="true"><use href="#camera"/></svg>Take a photo</button>
-          </div>
-          <p class="drop-hint">Or drop or paste it here. JPG, PNG or WebP, up to 15 MB.</p>
+  <section class="board" aria-labelledby="examples-title">
+    <h2 id="examples-title" class="visually-hidden">Your photo beside the reference photos</h2>
+    <div class="board-grid">
+      <div class="tile you">
+        <div class="drop-zone" id="drop-zone">
+          <button class="choose" id="choose-photo"><svg aria-hidden="true"><use href="#photo"/></svg><span class="choose-title">Choose a photo</span><span class="choose-hint">A close-up of the crown</span><span class="choose-drop">or drop one here</span></button>
+          <button class="take" id="take-photo"><svg aria-hidden="true"><use href="#camera"/></svg>Take a photo</button>
         </div>
-      </div>
-      <input id="photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden><input id="camera-input" type="file" accept="image/*" capture="environment" hidden>
-
-      <div class="inspection" id="inspection" hidden>
+        <input id="photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden><input id="camera-input" type="file" accept="image/*" capture="environment" hidden>
         <div class="preview-panel">
           <img id="preview-image" alt="Your selected dahlia photo">
           <button id="remove-photo" aria-label="Remove selected photo">×</button>
-          <span class="preview-label tag">Your photo</span>
-        </div>
-        <div class="inspection-content">
-          <div id="ready-state">
-            <h2>Ready to compare.</h2>
-            <p>Check that the crown is centred and the new shoots, plus any unusual growth, are easy to see.</p>
-            <button class="primary-button" id="inspect-photo"><svg aria-hidden="true"><use href="#scan"/></svg>Inspect photo</button>
-            <p class="download-note">First use loads a ~75 MB checker.<br> It runs here, on your device.</p>
-          </div>
-          <div id="loading-state" hidden>
-            <span class="loading-spinner" aria-hidden="true"></span>
-            <h2>Comparing with the references…</h2>
-            <p id="loading-text" role="status">Loading the on-device checker…</p>
-            <button class="text-button" id="cancel-inspection">Cancel</button>
-          </div>
-          <div id="result-state" hidden aria-live="polite">
-            <span class="result-label" id="result-label"></span>
-            <h2 id="result-title" tabindex="-1"></h2>
-            <p class="result-description" id="result-description"></p>
-            <p class="result-action" id="result-action"></p>
-            <div class="result-buttons"><button class="primary-button small" id="try-another">Try another photo</button><button class="text-button" id="copy-result">Copy result</button></div>
-            <p class="result-caution">Experimental visual match, not a diagnosis.</p>
-          </div>
-          <div id="error-state" hidden role="alert">
-            <span class="result-label amber">Couldn’t inspect this photo</span>
-            <h2>The photo wasn’t inspected.</h2>
-            <p id="inspection-error"></p>
-            <div class="result-buttons"><button class="primary-button small" id="retry-inspection">Try again</button><button class="text-button" id="change-photo">Choose a different photo</button></div>
-          </div>
+          <span class="chip preview-label">Your photo</span>
         </div>
       </div>
+      <button class="tile example" data-example="leafy"><img src="assets/leafy-detail.jpg" alt="Crowded, distorted growth on a dahlia crown"><span class="tile-label"><span class="match-note" hidden></span><span class="chip">Leafy gall</span></span></button>
+      <button class="tile example" data-example="normal"><img src="assets/normal-growth.jpg" alt="Distinct new shoots on a normal dahlia tuber clump"><span class="tile-label"><span class="match-note" hidden></span><span class="chip">Normal growth</span></span></button>
+      <button class="tile example" data-example="crown"><img src="assets/crown-gall.jpg" alt="Irregular swollen tissue on a dahlia crown"><span class="tile-label"><span class="match-note" hidden></span><span class="chip">Crown gall</span></span></button>
+    </div>
+    <p class="board-caption">Reference photos: Wild Horse Gardens, UC ANR and Dahlia Doctor. Tap one for details.</p>
+  </section>
 
-      <p class="file-error" id="file-error" role="alert" hidden></p>
-      <div class="privacy-line"><svg aria-hidden="true"><use href="#shield"/></svg><span>Your photo stays on this device. It is never uploaded.</span><button data-help aria-label="Learn how on-device inspection works">Learn how</button></div>
-    </section>
-
-    <section class="examples" aria-labelledby="examples-title">
-      <div class="examples-heading"><h2 id="examples-title">Reference photos</h2><span>Open one to see what to look for.</span></div>
-      <div class="example-grid">
-        <button class="example" data-example="leafy"><img src="assets/leafy-detail.jpg" alt="Crowded, distorted growth on a dahlia crown"><span class="example-text"><span class="tag">Leafy gall</span><span class="example-hint">Packed, distorted little shoots</span><span class="example-credit">Photo: Wild Horse Gardens</span><span class="match-note" hidden></span></span></button>
-        <button class="example" data-example="normal"><img src="assets/normal-growth.jpg" alt="Distinct new shoots on a normal dahlia tuber clump"><span class="example-text"><span class="tag">Normal growth</span><span class="example-hint">Separate shoots with stems and leaves</span><span class="example-credit">Photo: UC ANR</span><span class="match-note" hidden></span></span></button>
-        <button class="example" data-example="crown"><img src="assets/crown-gall.jpg" alt="Irregular swollen tissue on a dahlia crown"><span class="example-text"><span class="tag">Crown gall</span><span class="example-hint">A solid, irregular swelling</span><span class="example-credit">Photo: Dahlia Doctor</span><span class="match-note" hidden></span></span></button>
+  <section class="panel" aria-label="Photo checker">
+    <div class="inspection" id="inspection" hidden>
+      <div class="inspection-content">
+        <div id="ready-state">
+          <h2>Photo added</h2>
+          <p>Make sure the crown and new shoots are easy to see, then run the check.</p>
+          <button class="primary-button" id="inspect-photo"><svg aria-hidden="true"><use href="#scan"/></svg>Inspect photo</button>
+          <p class="download-note">First use downloads a ~75 MB checker to this device.</p>
+        </div>
+        <div id="loading-state" hidden>
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <h2>Inspecting photo…</h2>
+          <p id="loading-text" role="status">Loading the on-device checker…</p>
+          <button class="text-button" id="cancel-inspection">Cancel</button>
+        </div>
+        <div id="result-state" hidden aria-live="polite">
+          <span class="result-label" id="result-label"></span>
+          <h2 id="result-title" tabindex="-1"></h2>
+          <p class="result-description" id="result-description"></p>
+          <p class="result-action" id="result-action"></p>
+          <div class="result-buttons"><button class="primary-button small" id="try-another">Try another photo</button><button class="text-button" id="copy-result">Copy result</button></div>
+          <p class="result-caution">Experimental visual match, not a diagnosis.</p>
+        </div>
+        <div id="error-state" hidden role="alert">
+          <span class="result-label amber">Couldn’t inspect this photo</span>
+          <h2>The photo wasn’t inspected.</h2>
+          <p id="inspection-error"></p>
+          <div class="result-buttons"><button class="primary-button small" id="retry-inspection">Try again</button><button class="text-button" id="change-photo">Choose a different photo</button></div>
+        </div>
       </div>
-      <p class="contribute-note">Have a clear photo of a confirmed case? <a href="https://github.com/gabrielcsapo/isthisleafygall.com/issues/new?template=reference-photo.yml" target="_blank" rel="noopener">Share a reference photo on GitHub ↗</a><span>Submissions are optional and public.</span></p>
+    </div>
+
+    <p class="file-error" id="file-error" role="alert" hidden></p>
+
+    <section class="guide" aria-labelledby="guide-title">
+      <h2 id="guide-title">What to look for</h2>
+      <dl>
+        <div><dt>Leafy gall</dt><dd>A tight mass of small, distorted shoots at the crown or soil line.</dd></div>
+        <div><dt>Normal growth</dt><dd>Separate shoots growing their own stems and leaves, even when there are several.</dd></div>
+        <div><dt>Crown gall</dt><dd>A solid, irregular swelling rather than a cluster of shoots.</dd></div>
+      </dl>
     </section>
-  </div>
+
+    <ul class="notes">
+      <li class="privacy-line"><svg aria-hidden="true"><use href="#shield"/></svg><span>Your photo never leaves this device. Nothing is uploaded or saved.</span></li>
+      <li class="checker-note"><svg aria-hidden="true"><use href="#flask"/></svg><span>Experimental, not a diagnosis. It can be wrong, and often can’t decide. <button data-help>What it can’t tell you</button></span></li>
+    </ul>
+
+    <div class="links-block">
+      <p class="links">
+        <button id="show-sources">Sources &amp; credits</button>
+        <a class="contribute" href="https://github.com/gabrielcsapo/isthisleafygall.com/issues/new?template=reference-photo.yml" target="_blank" rel="noopener">Share a reference photo ↗</a>
+        <a href="https://github.com/gabrielcsapo/isthisleafygall.com" target="_blank" rel="noopener">Source code ↗</a>
+      </p>
+      <p class="contribute-hint">Reference photo submissions are optional and public on GitHub.</p>
+    </div>
+  </section>
 </main>
 
-<footer class="footer"><p>Less guessing. More gardening.</p><div class="footer-links"><a href="https://github.com/gabrielcsapo/isthisleafygall.com" target="_blank" rel="noopener">Source code on GitHub ↗</a></div></footer>
-
 <dialog id="help-dialog" aria-labelledby="help-title"><button class="close-dialog" data-close aria-label="Close explanation">×</button><span class="dialog-leaf"><svg aria-hidden="true"><use href="#leaf"/></svg></span><h2 id="help-title">A closer look. On your device.</h2><p>Choose a clear photo, then tap <strong>Inspect photo</strong>. A small vision model runs in your browser and compares your photo against a source-checked set of published reference photos.</p><h3>No photo uploads. No analysis API.</h3><p>The checker and its model download from this website. The photo itself stays in memory on your device. Removing it or leaving the page clears it. We don’t save photos or results.</p><h3>A visual match isn’t a diagnosis.</h3><p>This is an experimental comparison using a general-purpose model and 30 reference photos. These source labels have not been independently confirmed by this project. It has not been validated for diagnosing leafy gall. The result may be wrong, and “normal growth” does not rule out disease. A plant diagnostic clinic can advise on confirmation.</p><h3>For the most useful photo</h3><p>Use daylight, keep the crown centred, and show the shoots and any unusual growth clearly. A distant flower photo won’t help.</p><a class="help-link" href="https://bpp.oregonstate.edu/plant-clinic" target="_blank" rel="noopener">Get advice from a plant diagnostic clinic ↗</a></dialog>
-<dialog id="example-dialog" class="example-dialog" aria-labelledby="example-title"><button class="close-dialog photo-close" data-close aria-label="Close reference photo">×</button><img id="example-photo" alt=""><div class="example-body"><span class="reference-label tag">Reference photo</span><h2 id="example-title"></h2><p id="example-description"></p><a id="example-source" target="_blank" rel="noopener"></a></div></dialog>
+<dialog id="example-dialog" class="example-dialog" aria-labelledby="example-title"><button class="close-dialog photo-close" data-close aria-label="Close reference photo">×</button><img id="example-photo" alt=""><div class="example-body"><span class="reference-label">Reference photo</span><h2 id="example-title"></h2><p id="example-description"></p><a id="example-source" target="_blank" rel="noopener"></a></div></dialog>
 <dialog id="sources-dialog" aria-labelledby="sources-title"><button class="close-dialog" data-close aria-label="Close sources">×</button><h2 id="sources-title">Sources &amp; photo credits</h2><p>An independent guide. These organisations are not affiliated with this website.</p><ul class="sources-list"><li><a href="https://www.rhs.org.uk/disease/leafy-gall" target="_blank" rel="noopener">RHS: Leafy gall ↗</a></li><li><a href="https://ucanr.edu/node/164427/printable/print" target="_blank" rel="noopener">UC ANR: Identifying crown and leafy gall ↗</a></li><li><a href="https://bpp.oregonstate.edu/crown-gall-and-leafy-gall" target="_blank" rel="noopener">Oregon State University Plant Clinic ↗</a></li></ul><h3>Reference photographs</h3><p>Leafy gall: <a href="https://wildhorsegardens.com/tips-and-tricks/the-dreaded-leafy-gall/" target="_blank" rel="noopener">Wild Horse Gardens</a> and their <a href="https://wildhorsegardens.com/dahlia-disease-biology-part-2-leafy-gall-rhodococcus-fascians/" target="_blank" rel="noopener">disease biology guide</a>. Normal growth: <a href="https://ucanr.edu/node/164427/printable/print" target="_blank" rel="noopener">UC ANR</a>. Crown gall: <a href="https://www.dahliadoctor.com/blogs/second-blog/dahlia-gall-disease-unmasking-crown-gall-and-leafy-gall" target="_blank" rel="noopener">Dahlia Doctor</a>. Photos belong to their respective owners.</p><h3>The reference set</h3><p>30 published visual examples: 12 leafy-gall appearances, 13 normal-growth appearances, and 5 crown-gall appearances. Labels follow their sources; they are not laboratory confirmations. <a href="reference-catalog.json" target="_blank" rel="noopener">View the source catalog ↗</a>. Additional normal examples come from <a href="https://idlewildblooms.com/pages/is-my-tuber-okay" target="_blank" rel="noopener">Idlewild Blooms</a> and <a href="https://summerdreamsfarm.com/dahlia-tuber-and-splitting-guide" target="_blank" rel="noopener">Summer Dreams Farm</a>.</p><h3>On-device checker</h3><p><a href="https://huggingface.co/Xenova/mobileclip_s0" target="_blank" rel="noopener">MobileCLIP-S0</a> with <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noopener">Transformers.js</a>. Model and runtime are served by this site. The checker retrieves similar reference photos; it is not trained or validated as a disease classifier.</p><p class="licenses"><a href="models/mobileclip/LICENSE" target="_blank" rel="noopener">Model licence</a>, <a href="vendor/TRANSFORMERS-LICENSE" target="_blank" rel="noopener">Transformers licence</a>, <a href="vendor/ONNX-LICENSE" target="_blank" rel="noopener">ONNX Runtime licence</a></p></dialog>
 <dialog id="copy-dialog" aria-labelledby="copy-title"><button class="close-dialog" data-close aria-label="Close copy text">×</button><h2 id="copy-title">Ready to share.</h2><p>Select and copy the text below.</p><textarea id="copy-text" rows="6" readonly aria-label="Text to copy"></textarea></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

@@ -105,7 +105,7 @@ async function inspect() {
   busy = true; const id = ++activeRequest;
   $('#remove-photo').disabled = true; markReferences(); showState('loading'); $('#loading-text').textContent = 'Preparing your photo on this device…';
   try {
-    if (!('Worker' in window) || !('WebAssembly' in window)) throw new Error('This browser doesn’t support the on-device checker. Try a recent browser, or compare the reference photos below.');
+    if (!('Worker' in window) || !('WebAssembly' in window)) throw new Error('This browser doesn’t support the on-device checker. Try a recent browser, or compare the reference photos by eye.');
     const scale = Math.min(1, 1536 / Math.max(photo.image.naturalWidth, photo.image.naturalHeight));
     const width = Math.round(photo.image.naturalWidth * scale), height = Math.round(photo.image.naturalHeight * scale);
     if (Math.min(width, height) < 64) throw new Error('Choose a less panoramic close-up of the plant crown.');
